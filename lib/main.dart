@@ -36,10 +36,16 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   bool _isEditing = false;
+  bool _historyExpanded = false;
 
   void _editingChanged(bool value){
     setState(() {
       _isEditing = value;
+    });
+  }
+  void _historyChanged(){
+    setState(() {
+      _historyExpanded = !_historyExpanded;
     });
   }
 
@@ -69,8 +75,11 @@ class _HomeScreenState extends State<HomeScreen> {
 
 
         Positioned.fill(
-            child:BlurBlock(isVisible: _isEditing,
-            onTap: (){_editingChanged(false);},)
+            child:BlurBlock(isVisible: _historyExpanded||_isEditing,
+            onTap: (){
+              _isEditing=false;
+              _historyExpanded=false;
+              },)
         ),
 
         Positioned(
@@ -80,6 +89,16 @@ class _HomeScreenState extends State<HomeScreen> {
             child: FirstBlock(original: 'Are You ready', editingChanged: _editingChanged, isEditing:_isEditing),
         ),
 
+        Positioned(
+            top: _isEditing ? 600 : 420,
+            left: 16,
+            right: 16,
+            child: History(isVisible: _historyExpanded,
+                onTap: (){
+                  _editingChanged(false);
+                  _historyChanged();
+            })
+        )
       ]
     );
   }
@@ -105,7 +124,7 @@ class _FirstBlockState extends State<FirstBlock>{
             widget.editingChanged(!widget.isEditing);
         },
         child: AnimatedContainer(
-            duration: const Duration(milliseconds: 300),
+            duration: const Duration(milliseconds: 200),
             height: widget.isEditing ? 400:200,
             width: double.infinity,
             padding: EdgeInsets.all(16),
@@ -143,3 +162,26 @@ class BlurBlock extends StatelessWidget{
   }
 }
 
+class History extends StatelessWidget{
+  final bool isVisible;
+  final VoidCallback onTap;
+  const History({super.key, required this.isVisible, required this.onTap});
+
+  @override
+  Widget build(BuildContext context){
+    return GestureDetector(
+      onTap: onTap,
+      child: AnimatedContainer(
+          duration: const Duration(milliseconds: 200),
+          height: isVisible ? 400:200,
+          width: double.infinity,
+          padding: EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(10),
+            color: Colors.grey
+          ),
+          child: const Text('history'),
+      )
+    );
+  }
+}
